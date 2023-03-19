@@ -13,8 +13,7 @@ cursor.execute("""
         sec_id CHAR(8),
         semester ENUM('Spring', 'Winter') NOT NULL,
         year INT,
-        PRIMARY KEY (ID, course_id, sec_id, semester, year),
-        FOREIGN KEY (ID) REFERENCES instructors(ID)
+        PRIMARY KEY (ID, course_id, sec_id, semester, year)
     );
 """)
 cnx.commit()
