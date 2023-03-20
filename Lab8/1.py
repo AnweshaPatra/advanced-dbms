@@ -13,11 +13,14 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 # Retrieve the total salary for Q1
-query = "SELECT SUM(salary) FROM instructors WHERE MONTH(NOW()) <= 3"
-cursor.execute(query)
-total_salary_q1 = cursor.fetchone()[0]
-
-print("Total salary for Q1:", total_salary_q1)
+cursor.execute("""CREATE FUNCTION calculate_q1_salary(jan_salary FLOAT, feb_salary FLOAT, mar_salary FLOAT)
+RETURNS FLOAT
+BEGIN
+  DECLARE q1_salary FLOAT;
+  SET q1_salary = jan_salary + feb_salary + mar_salary;
+  RETURN q1_salary;
+END;""")
+cursor.execute("""SELECT calculate_q1_salary(1000.00, 1500.00, 2000.00) AS q1_salary;""")
 
 # Close the cursor and database connection
 cursor.close()
