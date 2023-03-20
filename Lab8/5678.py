@@ -9,23 +9,27 @@ db = mysql.connector.connect(
 )
 
 # Create a function to check sabbatical eligibility and return instructor details
-def is_eligible_for_sabbatical(age):
-  cursor = db.cursor()
-  query = "SELECT * FROM instructor WHERE age > %s"
-  cursor.execute(query, (age,))
-  result = cursor.fetchall()
-  cursor.close()
-  return result
+cursor = db.cursor()
+cursor.execute("""
+      CREATE FUNCTION check_sabbatical_eligibility(age INT)
+      RETURNS VARCHAR(50)
+      BEGIN
+        DECLARE result VARCHAR(50);
+          IF age > 40 THEN
+          SET result = 'Eligible for sabbatical';
+        ELSE
+          SET result = 'Not eligible for sabbatical';
+        END IF;
+          RETURN result;
+        END;
+      """)
 
-# Test the function
-age = 40
-instructors = is_eligible_for_sabbatical(age)
-if len(instructors) > 0:
-  print(f"Instructor(s) eligible for sabbatical with age > {age}:")
-  for instructor in instructors:
-    print(f"ID: {instructor[0]}, Name: {instructor[1]}, Department: {instructor[2]}, Salary: {instructor[3]}, Age: {instructor[4]}")
-else:
-  print(f"No instructor(s) eligible for sabbatical with age > {age}.")
+# Call the function to check if it has been successfully created
+cursor.execute("SELECT check_sabbatical_eligibility(40)")
+
+# Print the result
+result = cursor.fetchone()
+print(result[0])
 
 # Close the database connection
 db.close()
